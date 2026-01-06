@@ -1,31 +1,24 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.neighbors import KNeighborsClassifier # يمكنك تغيير الموديل هنا
 import joblib
+from sklearn.preprocessing import MinMaxScaler
 
-df = pd.read_csv('parkinsons.csv')
+def evaluate():
+    df = pd.read_csv('parkinsons.csv')
 
-X = df[['PPE', 'spread1']] 
-y = df['status']
-
-
-scaler = MinMaxScaler()
-X_scaled = scaler.fit_transform(X)
-
-
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-
-model = KNeighborsClassifier(n_neighbors=5)
-model.fit(X_train, y_train)
-
-accuracy = model.score(X_test, y_test)
-print(f"Model Accuracy: {accuracy:.2f}")
-
-if accuracy >= 0.8:
-    print("Success! Accuracy is above 0.8.")
+    features = ['PPE', 'spread1', 'spread2', 'MDVP:Fo(Hz)']
+    X = df[features]
+    y = df['status']
     
-    joblib.dump(model, 'my_model.joblib')
-    print("Model saved as 'my_model.joblib'")
-else:
-    print("Accuracy is too low. Try choosing different features.")
+
+    scaler = MinMaxScaler()
+    X_scaled = scaler.fit_transform(X)
+  
+    try:
+        model = joblib.load('my_model.joblib')
+        accuracy = model.score(X_scaled, y)
+        print(f"Model Accuracy: {accuracy:.4f}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    evaluate()
